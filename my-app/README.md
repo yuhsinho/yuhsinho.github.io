@@ -1,3 +1,12 @@
+# How to build it
+
+first commit and push as normal
+
+`git subtree push --prefix my-app/dist/browser  origin gh-pages`
+
+
+Thanks to  [S.O](https://stackoverflow.com/questions/36782467/set-subdirectory-as-website-root-on-github-pages)
+
 # MyApp
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.8.
