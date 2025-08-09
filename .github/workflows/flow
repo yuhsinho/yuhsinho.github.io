@@ -1,0 +1,62 @@
+name: Build & Deploy Angular → GitHub Pages
+
+on:
+  push:
+    branches: [ master ]   # deploy when you push to main or master
+  workflow_dispatch:              # allow manual runs from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # For a PERSONAL site (yuhsinho.github.io), base-href is "/"
+      - name: Build Angular (base-href "/")
+        run: |
+          npm run build -- --configuration production --base-href "/"
+
+      # Find Angular's output folder robustly (Angular 15–18)
+      - name: Locate dist
+        run: |
+          DIST_DIR="$(dirname "$(find dist -type f -name index.html -print -quit)")"
+          echo "DIST_DIR=$DIST_DIR" >> $GITHUB_ENV
+          test -n "$DIST_DIR" && test -d "$DIST_DIR"
+
+      # SPA fix so deep links work on refresh
+      - name: Add 404.html fallback
+        run: cp "${{ env.DIST_DIR }}/index.html" "${{ env.DIST_DIR }}/404.html"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.DIST_DIR }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
