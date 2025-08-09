@@ -2,8 +2,8 @@ name: Build & Deploy Angular → GitHub Pages
 
 on:
   push:
-    branches: [ master ]   # deploy when you push to main or master
-  workflow_dispatch:              # allow manual runs from the Actions tab
+    branches: [master] # deploy when you push to main or master
+  workflow_dispatch: # allow manual runs from the Actions tab
 
 permissions:
   contents: read
